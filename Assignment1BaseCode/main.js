@@ -103,7 +103,7 @@ class Star {
         gPush();
             // Set z to -7 so that stars remain in the background.
             gTranslate(this.x, this.y, -10);
-            setColor(vec4(1.0, 1.0, 1.0, 1.0));
+            setColor(vec4(0.9, 0.85, 0.75, 1.0));
             gScale(this.scale, this.scale, this.scale);
             // Draw as a sphere for a circular appearance.
             drawSphere();
@@ -154,7 +154,8 @@ window.onload = function init() {
         alert("WebGL isn't available");
     }
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(0, 0, 0, 1.0);
+    gl.clearColor(1.0, 0.9, 0.95, 1.0); // Soft pastel pink
+
     gl.enable(gl.DEPTH_TEST);
     program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
@@ -255,40 +256,236 @@ function gPop() {
 // ============================
 class Ballerina {
     constructor(position, scale = 1.0) {
-        this.position = position;
+        this.position = position; // [x, y, z]
+        this.basePosition = [...position]; // Store original position for oscillation
         this.scale = scale;
-        this.time = 0.0;
-        this.phase = 0; // 0: Walk, 1: Pirouette, 2: Split Jump
-        this.legRotation = 0;
+        this.time = 0.0; // Time accumulator for animations
+        this.rotationAngle = -35; // Rotation angle (in degrees) to face diagonally left
     }
 
-    update(dt) {
-        this.time += dt;
-        
-        if (this.time > 2) {
-            this.phase = (this.phase + 1) % 3;
-            this.time = 0;
-        }
-    }
+    drawHead() { 
+        /**Brunette with a low ballet bun and a tiara*/
 
-    drawLegs() {
+        /** Brunette with a low ballet bun and a tiara (Head) */
         gPush();
-        setColor(vec4(1.0, 0.8, 0.8, 1.0));
-        gTranslate(0, -1.2, 0);
-        gRotate(this.legRotation, 1, 0, 0);
-        gScale(0.2, 1.0, 0.2);
+        setColor(vec4(1.0, 0.8, 0.6, 1.0)); // Skin color
+        gTranslate(0, 1.3 * this.scale, 0.03);
+        gScale(0.35 * this.scale, 0.36 * this.scale, 0.35 * this.scale);
+        drawSphere();
+        gPop();
+
+       
+
+        /** Neck transitioning into shoulders */
+        gPush();
+        setColor(vec4(1.0, 0.8, 0.6, 1.0)); // Skin color
+        gTranslate(0, 0.8 * this.scale, 0); // Position just below the head
+        gScale(0.5 * this.scale, 0.5 * this.scale, 0.3 * this.scale); // Adjust for visibility
+        gRotate(-90, 1, 0, 0); // Align vertically
+        drawCone(); // Draws the neck (slightly wider at the bottom)
+        gPop();
+
+        // back of head
+        gPush();
+        setColor(vec4(0.4, 0.2, 0.1, 1.0)); // Dark brown for hair
+        gTranslate(0, 1.3 * this.scale, 0);
+        gScale(0.35 * this.scale, 0.35 * this.scale, 0.35 * this.scale);
+        drawSphere();
+        gPop();
+        
+
+        // Draw the hair bun
+        gPush();
+        setColor(vec4(0.4, 0.2, 0.1, 1.0)); // Dark brown for hair
+        gTranslate(0.0, 1.6 * this.scale, -0.06 * this.scale);
+        gScale(0.3 * this.scale, 0.3 * this.scale, 0.3 * this.scale);
+        drawSphere();
+        gPop();
+
+        // Draw the tiara
+        gPush();
+        setColor(vec4(0.7, 0.5, 0.9, 1.0)); // Gold color
+        gTranslate(0.0, 1.5 * this.scale, 0.2 * this.scale);
+        gScale(0.25 * this.scale, 0.10 * this.scale, 0.04 * this.scale);
+        drawCube();
+        gPop();
+
+    //       /** 🌟 Eyes */
+    // let eyeOffsetX = 0.10 * this.scale; // Distance from center
+    // let eyeOffsetY = 1.38 * this.scale; // Position height
+    // let eyeOffsetZ = 0.32 * this.scale; // Forward position
+
+    // for (let side of [-1, 1]) { // Left (-1) & Right (1) eye
+    //     gPush();
+    //     setColor(vec4(0.0, 0.0, 0.0, 1.0)); // Black eyes
+    //     gTranslate(side * eyeOffsetX, eyeOffsetY, eyeOffsetZ);
+    //     gScale(0.10 * this.scale, 0.06 * this.scale, 0.02 * this.scale); // Oval shape
+    //     drawSphere();
+    //     gPop();
+    // }
+
+    // /** 🌟 Nose */
+    // gPush();
+    // setColor(vec4(1.0, 0.75, 0.6, 1.0)); // Slightly darker skin tone
+    // gTranslate(0, 1.33 * this.scale, 0.37 * this.scale); // Nose placement
+    // gScale(0.03 * this.scale, 0.05 * this.scale, 0.02 * this.scale);
+    // drawSphere();
+    // gPop();
+
+    // /** 🌟 Mouth (Gentle smile) */
+    // gPush();
+    // setColor(vec4(1.0, 0.2, 0.2, 1.0)); // Red lips
+    // gTranslate(0, 1.16 * this.scale, 0.33 * this.scale); // Mouth placement
+    // gScale(0.12 * this.scale, 0.02 * this.scale, 0.02 * this.scale); // Flattened smile
+    // drawSphere();
+    // gPop();
+
+    }
+
+    drawBody() {
+        gPush();
+        setColor(vec4(0.7, 0.5, 0.9, 1.0)); // Upper torso
+        gTranslate(0, 0.1 * this.scale, 0); // Moves body up
+        gRotate(90, 1, 0, 0); // Align vertically
+        gScale(0.5 * this.scale, 0.4 * this.scale, 1 * this.scale);
+        drawCone(); // Draw upper torso
+        gPop();
+    
+        gPush();
+        setColor(vec4(0.7, 0.5, 0.9, 1.0)); // Lower torso/tutu
+        gTranslate(0.05, -0.45 * this.scale, 0); // Moves lower body up slightly
+        gRotate(-90, 1, 0, 0); // Align vertically
+        gScale(1.75 * this.scale, 1.75 * this.scale, 1 * this.scale);
+        drawCone(); // Draw lower torso/tutu
+        gPop();
+    }
+    
+
+    drawArms() {
+        const armLength = 0.6 * this.scale;
+        const armOffset = 0.8 * this.scale;
+
+        // Left arm
+        gPush();
+        setColor(vec4(1.0, 0.8, 0.6, 1.0)); // Skin color
+        gTranslate(-armOffset, 0.2 * this.scale, 0);
+        gRotate(-45, 0, 0, 1); // Rotate arm to 45 degrees
+        gRotate(12 * Math.sin(this.time * 2), 1, 0, 0); // Animate arm swing
+        gScale(0.06 * this.scale, armLength, 0.13 * this.scale);
+        drawCube();
+        gPop();
+
+        // Right arm
+        gPush();
+        setColor(vec4(1.0, 0.8, 0.6, 1.0)); // Skin color;
+        gTranslate(armOffset, 0.2 * this.scale, 0);
+        gRotate(45, 0, 0, 1); // Rotate arm to -45 degrees
+        gRotate(-12 * Math.sin(this.time * 2), 1, 0, 0); // Animate arm swing
+        gScale(0.06 * this.scale, armLength, 0.13 * this.scale);
         drawCube();
         gPop();
     }
 
+    drawLegs() {
+        const legLength = 0.5 * this.scale; // Length of each segment (thigh, shin)
+        const hipBend = -10 * Math.sin(this.time * 2); // Hip animation
+        const hipBendL = -10 * Math.sin(this.time * 2); // Hip animation
+        const kneeBendL = -3*Math.max(10, 25 * Math.sin(this.time * 2)); // Knee bends only inward
+        const kneeBendR = -3*Math.max(10, 25 * Math.cos(this.time * 2)); // Knee bends only inward
+        // ================================
+        // Left Leg (hierarchical structure)
+        // ================================
+        setColor(vec4(1.0, 0.8, 0.6, 1.0)); // Skin color
+        gPush(); // Start drawing the left leg (hip)
+        gTranslate(-0.25 * this.scale, -1.4 * this.scale, -0.1); // Position of the left thigh
+        gRotate(0, -10, 0, 1); // Rotate leg to 45 degrees
+        gRotate( hipBendL-1, -1, 0, 0); // Animate the hip
+        gScale(0.15 * this.scale, legLength, 0.12 * this.scale); // Thigh dimensions
+        drawCube(); // Draw the thigh
+    
+        // Shin (relative to the thigh)
+        gPush();
+        gTranslate(0, -legLength-1, -0.1); // Move to the bottom of the thigh
+        gRotate(0, -15, 0, 1); // Rotate leg to 45 degrees
+        gRotate(-kneeBendL, 1, 0, 0); // Animate the knee
+        gScale(1, 1.3, 0.75) // Adjust the shin proportions
+        drawCube(); // Draw the shin
+    
+        // Boot (relative to the shin)
+        gPush();
+        setColor(vec4(1.0, 0.71, 0.76, 1.0)); // Soft ballet pink
+        gTranslate(0, -legLength-0.5, 0.06 * this.scale+1); // Move to the bottom of the shin
+        gScale(1, 0.2, 0.5); // Boot proportions 
+        drawCube(); // Draw the boot
+        gPop(); // End boot transformation
+    
+        gPop(); // End shin transformation
+        gPop(); // End left leg (hip transformation)
+    
+        // ================================
+        // Right Leg (hierarchical structure)
+        // ================================
+        setColor(vec4(1.0, 0.8, 0.6, 1.0)); // Skin color
+        gPush(); // Start drawing the right leg (hip)
+        gTranslate(0.2 * this.scale, -1.4 * this.scale, -0.2); // Position of the right thigh
+        gRotate( -1, -10, 0, 0); // Animate the hip
+        gRotate( -hipBend, 1, 0, 0); // Animate the hip
+        gScale(0.15 * this.scale, legLength, 0.12 * this.scale); // Thigh dimensions
+        drawCube(); // Draw the thigh
+    
+        // Shin (relative to the thigh)
+        gPush();
+        gTranslate(0, -legLength-1, -0.1); // Move to the bottom of the thigh
+        gRotate(0, 15, 0, 1); // Rotate shin to 45 degrees
+        gRotate(-kneeBendR, 1, 0, 0); // Animate the knee
+        gScale(1, 1.3, 0.75); // Adjust the shin proportions
+        drawCube(); // Draw the shin
+    
+        // Boot (relative to the shin)
+        gPush();
+        setColor(vec4(1.0, 0.71, 0.76, 1.0)); // Soft ballet pink
+        gTranslate(0, -legLength-0.5, 0.06 * this.scale+1); // Move to the bottom of the shin
+        gScale(1, 0.2, 0.5); // Boot proportions
+        drawCube(); // Draw the boot
+        gPop(); // End boot transformation
+    
+        gPop(); // End shin transformation
+        gPop(); // End right leg (hip transformation)
+    }
+    
+    
+
+    update(dt) {
+        this.time += dt;
+    
+        // 🌟 Pirouette: Continuous spinning rotation
+        this.rotationAngle += 360 * dt * 0.3; // Adjust speed by changing 0.5
+    
+        // Oscillate in diagonal x and y directions (adds slight movement)
+        this.position[0] = this.basePosition[0] + Math.sin(this.time) * 0.5; // X-axis oscillation
+        this.position[1] = this.basePosition[1] + Math.sin(this.time * 2) * 0.3; // Y-axis oscillation
+    }
+    
+
     render() {
         gPush();
-        gTranslate(this.position[0], this.position[1], this.position[2]);
-        gScale(this.scale, this.scale, this.scale);
+        gTranslate(this.position[0], this.position[1], this.position[2]); // Apply position
+    
+        gRotate(this.rotationAngle, 0, 1, 0); // 🌟 Apply spinning animation
+    
+        this.drawHead();
+        this.drawBody();
+        this.drawArms();
         this.drawLegs();
         gPop();
     }
+    
 }
+// ============================
+// stage
+// ============================
+
+
 
 // ============================
 // Global Instances
@@ -317,12 +514,16 @@ function render(timestamp) {
     // ============================
     updateStars(dt);
     drawStars();
+
+
     
   // ============================
     // Draw ballerina
     // ============================
     ballerina.update(dt);
     ballerina.render();
+
+
 
     // ============================
     if (animFlag)
