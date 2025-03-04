@@ -40,7 +40,7 @@ var modelViewMatrixLoc, projectionMatrixLoc, normalMatrixLoc;
 
 // --- Camera Parameters ---
 var eye; // Will be set during rendering.
-var at = vec3(0.0, 1.0, 0.0);  // Focus point remains centered
+var at = vec3(0.0, 0.0, 0.0);
 var up = vec3(0.0, 1.0, 0.0);
 
 // --- Object Transformation States ---
@@ -122,12 +122,8 @@ function updateStars(dt) {
 }
 
 function drawStars() {
-    gPush();
-    gTranslate(eye[0], eye[1], eye[2]);  // Move stars with the camera
     stars.forEach(star => star.draw());
-    gPop();
 }
-
 
 
 
@@ -265,8 +261,6 @@ class Ballerina {
         this.scale = scale;
         this.time = 0.0; // Time accumulator for animations
         this.rotationAngle = -35; // Rotation angle (in degrees) to face diagonally left
-        this.rotationSpeed = 0;  // Prevents accidental spinning unless set explicitly
-
     }
 
     drawHead() { 
@@ -465,11 +459,11 @@ class Ballerina {
         this.time += dt;
     
         // 🌟 Pirouette: Continuous spinning rotation
-        this.rotationAngle += 360 * dt * 0; // Adjust speed by changing 0.5
+        this.rotationAngle += 360 * dt * 0.3; // Adjust speed by changing 0.5
     
         // Oscillate in diagonal x and y directions (adds slight movement)
-        // this.position[0] = this.basePosition[0] + Math.sin(this.time) * 0.5; // X-axis oscillation
-        // this.position[1] = this.basePosition[1] + Math.sin(this.time * 2) * 0.3; // Y-axis oscillation
+        this.position[0] = this.basePosition[0] + Math.sin(this.time) * 0.5; // X-axis oscillation
+        this.position[1] = this.basePosition[1] + Math.sin(this.time * 2) * 0.3; // Y-axis oscillation
     }
     
 
@@ -484,24 +478,12 @@ class Ballerina {
         this.drawArms();
         this.drawLegs();
         gPop();
-    }    
+    }
     
 }
-
 // ============================
-// 360-degree camera fly around
+// stage
 // ============================
-var cameraAngle = 0;  // Tracks the orbit position
-
-function updateCamera(dt) {
-    cameraAngle += dt * 0.5;  // Adjust speed of rotation
-    var radius = 20.0;  // Distance from the ballerina
-    eye = vec3(
-        Math.sin(cameraAngle) * radius, 
-        3,  
-        Math.cos(cameraAngle) * radius
-    );
-}
 
 
 
@@ -509,8 +491,6 @@ function updateCamera(dt) {
 // Global Instances
 // ============================
 var ballerina = new Ballerina([0, 0, 0], 1.0);
-
-
 
 
 // ======================================================
@@ -536,21 +516,12 @@ function render(timestamp) {
     drawStars();
 
 
-    // ============================
-    // 360-degree camera fly around
-    // ============================
-    updateCamera(dt);  // Update camera position
-    viewMatrix = lookAt(eye, at, up);
-    projectionMatrix = ortho(left, right, bottom, ytop, near, far);
-    setAllMatrices();
     
   // ============================
     // Draw ballerina
     // ============================
     ballerina.update(dt);
     ballerina.render();
-
-
 
 
 
